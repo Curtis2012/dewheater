@@ -57,7 +57,7 @@ class ConfigClass:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(config.dewHeaterPin, GPIO.OUT)
         GPIO.setup(config.dhtPin, GPIO.IN)
-        dewHeater.cycleRelay()
+        dewHeater.cycleRelay()    # cycle the relay just as a start up test, if you dont hear it clicking then it aint working
         dewHeater.shutoff = False
 
 

@@ -7,7 +7,6 @@
 
 import sys
 import RPi.GPIO as GPIO
-#import time
 import json
 
 ON = 1
