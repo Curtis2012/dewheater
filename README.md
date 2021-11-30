@@ -27,3 +27,4 @@ Configuration file options:
   "dewHeaterOnOffDelay": 5,            # Delay between on/off cycle, used only by dewheatertest.py
   "dewPtCheckDelay": 5                 # Time in seconds to wait between read of DHT sensor and dew point calculation
 
+
