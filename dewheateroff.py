@@ -4,7 +4,6 @@
 # Dew heater turn off relay
 #
 
-
 import sys
 import RPi.GPIO as GPIO
 import json
