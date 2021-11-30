@@ -3,8 +3,8 @@
 #
 #  2021-10-18 C. Collins created
 #
-#  This code assumes a hacked USB dew heater controller. The hack consists of nothing more than removing the switch from the dew heater
-#  and directly connection the power leads to the NO side of a relay.
+#  This code assumes a hacked USB dew heater. The hack consists of nothing more than removing the switch from the dew heater
+#  and directly connecting the power leads to the NO side of a relay.
 #
 #  A DHT sensor is used to monitor temperature vs dew point. When dew point cut-in set point is reached then the dew heater relay is closed.
 #  When the cut-out set point is reached the dew heater relay is opened. Both the cut-in and cut-out set points are defined in the configuration file as
@@ -14,6 +14,7 @@
 #  The design is based upon a dew heater like the one at the link below:
 #
 #         https://www.amazon.com/dp/B08LGN222F?psc=1&ref=ppx_yo2_dt_b_product_details
+#
 #
 #
 
