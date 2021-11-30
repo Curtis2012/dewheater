@@ -28,3 +28,4 @@ Configuration file options:
   "dewPtCheckDelay": 5                 # Time in seconds to wait between read of DHT sensor and dew point calculation
 
 
+
