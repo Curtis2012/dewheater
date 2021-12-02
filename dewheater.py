@@ -111,6 +111,7 @@ class DewHeaterClass:
         GPIO.output(config.dewHeaterPin, GPIO.HIGH)
         time.sleep(1)
         GPIO.output(config.dewHeaterPin, GPIO.LOW)
+        return
 
     def checkTemps(self):
         humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
@@ -128,6 +129,7 @@ class DewHeaterClass:
                 print("Dew heater min temp reached, turning dew heater on")
                 self.off(True)
                 return ()
+        return
 
 dewHeater = DewHeaterClass()
 
@@ -156,6 +158,8 @@ def checkDewPoint():
                 dewHeater.off()
     else:
         sys.stderr.write("No reading from DHT22 module")
+
+    return
 
 
 def main():
