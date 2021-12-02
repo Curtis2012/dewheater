@@ -22,9 +22,9 @@ Configuration file options:
   
   "dewHeaterPin": 23,                  # Dew Heater relay control pin, BCM mode
   
-  "dewHeaterCutinOffset": 1.0,         # Dew Heater cut-in (on) offset in degrees C
+  "dewHeaterCutinOffset": 1.0,         # Dew Heater cut-in (on) offset in degrees C. This offset is relative to the dew point. 
   
-  "dewHeaterCutoutOffset": 1.0,        # Dew Heater cut-out (off) offset in degrees C
+  "dewHeaterCutoutOffset": 1.0,        # Dew Heater cut-out (off) offset in degrees C. This offset is relative to the dew point.
   
   "dewHeaterSafetyTempOFF": 40,        # Dew Heater safety shut off temp in degrees C. When this set point is exceeded, the dew heater relayed is opened (off) and this control
 					 program will not close it again (turn it on) until the service is restarted. 
