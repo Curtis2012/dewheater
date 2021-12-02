@@ -43,6 +43,7 @@ Configuration file options:
   "dewPtCheckDelay": 5                 # Time in seconds to wait between each dew point calculation (this includes reading the DHT sensor and making the dew point calculation).
   
   
+  
   Modules
 
 	dewheater.py  	   The main module, designed to be run as a service
