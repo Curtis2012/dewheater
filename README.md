@@ -45,7 +45,7 @@ Configuration file options:
   
   Modules
 
-	dewheater.py  The main module, designed to be run as a service
+	dewheater.py  	   The main module, designed to be run as a service
 
 	dewheatertest.py   Simple timed on/of test script. Delay between on/off cycle is controlled by "dewHeaterOnOffDelay" parameter above.
 
