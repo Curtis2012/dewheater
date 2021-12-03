@@ -42,6 +42,23 @@ Configuration file options:
   
   "dewPtCheckDelay": 5                 # Time in seconds to wait between each dew point calculation (this includes reading the DHT sensor and making the dew point calculation).
   
+  
+  
+  Modules
+
+	dewheater.py  	   The main module, designed to be run as a service
+
+	dewheatertest.py   Simple timed on/of test script. Delay between on/off cycle is controlled by "dewHeaterOnOffDelay" parameter above.
+
+	dewheateron.py     Closes dew heater relay unconditionally (no cut in/out points, no timer). CAUTION: It does NOT open the relay again!
+
+	dewheateroff.py    Opens dew heater relay unconditionally (no cut in/out points, no timer).
+	
+	
+
+
+
+  
 
 
 
