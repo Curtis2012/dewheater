@@ -72,7 +72,7 @@ class DewHeaterClass:
     def on(self, force=False):
         if (self.shutoff == True):
             sys.stderr.write("'On' command ignored: ")
-            sys.stderr.write("Saftey temperature exceeded, dew heater shut down, resolve issue then restart")
+            sys.stderr.write("Safety temperature exceeded, dew heater shut down, resolve issue then restart")
             return
 
         if (force == False and self.status == ON):
