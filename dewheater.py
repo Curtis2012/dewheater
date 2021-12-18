@@ -4,7 +4,7 @@
 #  2021-10-18 C. Collins created
 #
 #  This code assumes a hacked USB dew heater. The hack consists of nothing more than removing the switch from the dew heater
-#  and directly connecting the power leads to the NO side of a relay.
+#  and directly connecting the power leads to the NO side of a relay. This same logic should work with resistor based designs too, but this  has not yet been tested.
 #
 #  A DHT sensor is used to monitor temperature vs dew point. When dew point cut-in set point is reached then the dew heater relay is closed.
 #  When the cut-out set point is reached the dew heater relay is opened. Both the cut-in and cut-out set points are defined in the configuration file as
@@ -42,10 +42,10 @@ class ConfigClass:
                 self.dewHeaterPin = self.configFile['dewHeaterPin']
                 self.dewHeaterCutinOffset = self.configFile['dewHeaterCutinOffset']
                 self.dewHeaterCutoutOffset = self.configFile['dewHeaterCutoutOffset']
-                self.dewHeaterSafetyTempOFF = self.configFile['dewHeaterSafetyTempOFF']
                 self.dewHeaterMaxTemp = self.configFile['dewHeaterMaxTemp']
                 self.dewHeaterMinTemp = self.configFile['dewHeaterMinTemp']
                 self.dewPtCheckDelay = self.configFile['dewPtCheckDelay']
+                self.fakeDewPoint = self.configFile['fakeDewPoint']
 
         except:
             sys.stderr.flush()
@@ -57,8 +57,8 @@ class ConfigClass:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(config.dewHeaterPin, GPIO.OUT)
         GPIO.setup(config.dhtPin, GPIO.IN)
-        dewHeater.cycleRelay()    # cycle the relay just as a start up test, if you dont hear it clicking then it aint working
-        dewHeater.shutoff = False
+
+
 
 
 config = ConfigClass()
@@ -67,40 +67,53 @@ config = ConfigClass()
 class DewHeaterClass:
 
     def __init__(self):
+        self.cycleRelay()    # cycle the relay just as a start up test, if you dont hear it clicking then it aint working
         self.status = OFF
+        self.off(True)    # force off in case left on by previous session
+        self.minTempOn = False
+        self.maxTempOff = False
+        self.temp_actual = 0.0
 
-    def on(self, force=False):
-        if (self.shutoff == True):
-            sys.stderr.write("'On' command ignored: ")
-            sys.stderr.write("Safety temperature exceeded, dew heater shut down, resolve issue then restart")
+    def on(self, forced=False):
+
+        if (forced):
+            GPIO.output(config.dewHeaterPin, GPIO.HIGH)
+            self.status = ON
+            print("Dew heater on")
             return
 
-        if (force == False and self.status == ON):
+        if (self.status == ON):
             print("Dew heater already on, 'on' command ignored")
+            return
+
+        if (self.maxTempOff):
+            print("Dew heater maxTempOff reach, 'on' command ignored")
             return
 
         GPIO.output(config.dewHeaterPin, GPIO.HIGH)
         self.status = ON
         print("Dew heater on")
 
-        return
 
+    def off(self, forced=False):
 
-    def off(self, force=False):
-
-        if (self.shutoff == True):
-            sys.stderr.write("'Off' command ignored: ")
-            sys.stderr.write("Saftey temperature exceeded, dew heater shut down, resolve issue then restart")
+        if (forced):
+            GPIO.output(config.dewHeaterPin, GPIO.LOW)
+            self.status = OFF
+            print("Dew heater off")
             return
 
-        if (force == False and self.status == OFF):
+        if (self.status == OFF):
             print("Dew heater already off, 'off' command ignored")
+            return
+
+        if (self.minTempOn):
+            print("Dew heater minTempOn reached, 'off' command ignored")
             return
 
         GPIO.output(config.dewHeaterPin, GPIO.LOW)
         self.status = OFF
         print("Dew heater off")
-        return
 
     def cycleRelay(self):
         self.status = OFF
@@ -111,63 +124,74 @@ class DewHeaterClass:
         GPIO.output(config.dewHeaterPin, GPIO.HIGH)
         time.sleep(1)
         GPIO.output(config.dewHeaterPin, GPIO.LOW)
-        return
 
     def checkTemps(self):
         humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
         if (temperature is not None):
-            if (temperature > config.dewHeaterSafetyTempOFF):
-                sys.stderr.write("Saftey temperature exceeded, shutting down dew heater, restart of service required to clear shutdown")
-                self.off(True)
-                self.shutoff = True
-                return()
-            if (temperature > config.dewHeaterMaxTemp):
-                print("Dew heater max temp reached, turning dew heater off")
+
+            if (self.temp_actual > config.dewHeaterMaxTemp):      # use temp_actual for when fakeDewPoint is set
+                print("Dew heater max temp set point exceeded, turning dew heater off")
+                self.maxTempOff = True
                 self.off(True)
                 return ()
-            if (temperature < config.dewHeaterMinTemp):
-                print("Dew heater min temp reached, turning dew heater on")
-                self.off(True)
+            else:
+                if (self.maxTempOff == True):
+                    self.maxTempOff = False
+                    self.on(False)
+
+            if (temperature < config.dewHeaterMinTemp and self.status == OFF):
+                print("Dew heater min temp set point reached, turning dew heater on")
+                self.minTempOn = True
+                self.on(False)
                 return ()
-        return
+            else:
+                if (self.minTempOn == True):
+                    self.minTemp = False
+                    self.off(False)
+                return
 
-dewHeater = DewHeaterClass()
+    def checkDewPoint(self):
+        humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
+        self.temp_actual = temperature   # set actual temp for use when fakeDewPoint is true
 
+        if humidity is not None and temperature is not None:
+            if ((temperature >= -40) and (temperature <= 80)) and ((humidity >= 0) and (humidity <= 100)):
+                dp = dew_point(temperature, humidity)
+                if (config.fakeDewPoint):
+                    temperature = dp.c - 2
+            else:
+                sys.stderr.write("\nError calculating dew point, input out of range:")
+                sys.stderr.write("\nTemp = %3.1fC" % temperature)
+                sys.stderr.write("\nHumdidity = %3.1f%%\n" % humidity)
+                return
 
-def checkDewPoint():
-    humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
-    if humidity is not None and temperature is not None:
-        if ((temperature >= -40) and (temperature <= 80)) and ((humidity >= 0) and (humidity <= 100)):
-            dp = dew_point(temperature, humidity)
+            if (config.debug):
+                print("====================================================")
+                print("Temp = %3.1fC, temp_actual = %3.1fC, Humidity %3.1f%% Dew Point = %3.1fC" % (temperature, self.temp_actual, humidity,  dp.c))
+                print("Dew Heater State = %i, Min Temp On = %s, Max Temp Off = %s" % (self.status, self.minTempOn, self.maxTempOff))
+                print("minTempOn = %3.1fC, maxTempOff = %3.1fC, fakeDewPoint = %s" % (config.dewHeaterMinTemp, config.dewHeaterMaxTemp, config.fakeDewPoint))
+                print("====================================================")
+
+            if temperature <= (dp.c + config.dewHeaterCutinOffset):
+                if (self.status == OFF and not self.maxTempOff):
+                    print("Dew point reached, turning dew heater on")
+                    self.on(False)
+
+            if temperature >= (dp.c + config.dewHeaterCutoutOffset):
+                if (self.status == ON and not self.minTempOn):
+                    print("Dew point exceeded, turning dew heater off")
+                    self.off(False)
         else:
-            sys.stderr.write("\nError calculating dew point, input out of range:")
-            sys.stderr.write("\nTemp = %3.1fC" % temperature)
-            sys.stderr.write("\nHumdidity = %3.1f%%\n" % humidity)
-            return
-
-        if (config.debug): print("Temp = %3.1fC Humidity %3.1f%% Dew Point = %3.1fC" % (temperature, humidity, dp.c))
-
-        if temperature <= (dp.c + config.dewHeaterCutinOffset):
-            if (dewHeater.status == OFF):
-                print("Dew point reached, turning dew heater on")
-                dewHeater.on()
-
-        if temperature >= (dp.c + config.dewHeaterCutoutOffset):
-            if (dewHeater.status == ON):
-                print("Dew point exceeded, turning dew heater off")
-                dewHeater.off()
-    else:
-        sys.stderr.write("No reading from DHT22 module")
-
-    return
+            sys.stderr.write("No reading from DHT22 module")
 
 
 def main():
     config.loadConfig()
     config.setup()
+    dewHeater = DewHeaterClass()
 
     while True:
-        checkDewPoint()
+        dewHeater.checkDewPoint()
         dewHeater.checkTemps()
         time.sleep(config.dewPtCheckDelay)
 
