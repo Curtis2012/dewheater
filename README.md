@@ -1,13 +1,12 @@
-# dewheater (beta)
+# dewheater
 
 Dew heater controller for allksycam.
 
-
-Help with testing requested! I just built this code and have not yet tested it extensively. Also testing in multiple climates would be good. So, pitch in and test please!
+Help with testing requested! This is new code and not yet tested it extensively. Also testing in multiple climates would be good. So, pitch in and test please!
 
 
 This code controls a hacked USB powered dew heater. The hack consists of nothing more than removing the switch from the dew heater 
-and directly connecting the power leads to the NO side of a relay. This code should work with resistore based
+and directly connecting the power leads to the NO side of a relay. This code should work with resistor based
 designs also, but this has not yet been tested.
 
 
