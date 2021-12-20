@@ -46,6 +46,12 @@ Configuration file options:
   "fakeDewPointSamples": 20            # number of samples for which dew point will be faked, after that samples are normal.
   
   
+DHT Sensor Placement. The current code assumes that the DHT sensor is under the acrylic dome. This allows for monitoring of
+actual conditions under the dome. The dew point offset values are implemented so that cut in/out points can be offset 
+relative to what works best for your installation to keep the dome dew free, and to adjust for hysteresis (which is considerable
+in my configuration). Note that features like max temp shutoff will only work properly with the DHT sensor under 
+the acrylic dome. I plan to add a second DHT sensor to sense outside ambient conditions too.
+
   
   Modules
 
