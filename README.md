@@ -41,7 +41,9 @@ Configuration file options:
   "dewPtCheckDelay": 5                 # Time in seconds to wait between each dew point calculation (this includes reading the DHT sensor and making the dew point calculation).
 
   "fakeDewPoint": false                # enables dew point faking for test purposes. If enable temperature will be set to 
-                                         the dew point minus 2C. 
+                                         the dew point minus 2C.
+
+  "fakeDewPointSamples": 20            # number of samples for which dew point will be faked, after that samples are normal.
   
   
   

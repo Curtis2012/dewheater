@@ -8,5 +8,6 @@
   "dewHeaterMinTemp": 1.0,
   "dewHeaterOnOffDelay": 5,
   "dewPtCheckDelay": 5,
-  "fakeDewPoint": false
+  "fakeDewPoint": true,
+  "fakeDewPointSamples": 20
 }

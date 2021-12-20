@@ -29,7 +29,6 @@ DHT_SENSOR = Adafruit_DHT.DHT22
 ON = 1
 OFF = 0
 
-
 class ConfigClass:
 
     def __init__(self):
@@ -53,6 +52,7 @@ class ConfigClass:
                 self.dewHeaterMinTemp = self.configFile['dewHeaterMinTemp']
                 self.dewPtCheckDelay = self.configFile['dewPtCheckDelay']
                 self.fakeDewPoint = self.configFile['fakeDewPoint']
+                self.fakeDewPointSamples = self.configFile['fakeDewPointSamples']
 
         except:
             sys.stderr.flush()
@@ -71,6 +71,9 @@ config = ConfigClass()
 
 class conditionsClass:
 
+    def __init__(self):
+        self.fakeDewPointCounter = 0
+
     def update(self):
         self.humidity, self.temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
 
@@ -79,12 +82,19 @@ class conditionsClass:
                     (self.humidity >= 0) and (self.humidity <= 100)):
                 self.temp_actual = self.temperature  # set actual temp for use when fakeDewPoint is true
                 self.dewPoint = dew_point(self.temperature, self.humidity)
+
                 if (config.fakeDewPoint):
-                    self.temperature = self.dewPoint.c - 2
-                if (self.temperature <= self.dewPoint.c):
+                    self.fakeDewPointCounter +=1
+                    if (self.fakeDewPointCounter < config.fakeDewPointSamples):
+                         self.temperature = self.dewPoint.c - 2
+                    else:
+                        config.fakeDewPoint = False   # fake done, clear flag
+
+                if (self.temperature <= self.dewPoint.c + config.dewHeaterCutinOffset):
                     self.dewPointMet = True
                 else:
-                    self.dewPointMet = False
+                    if (self.temperature >= self.dewPoint.c + config.dewHeaterCutoutOffset):
+                        self.dewPointMet = False
             else:
                 sys.stderr.write("\nError calculating dew point, input out of range:")
                 sys.stderr.write("\nTemp = %3.1fC" % self.temperature)
@@ -166,11 +176,11 @@ class DewHeaterClass:
                 return
 
         if conditions.dewPointMet:
-            if (self.status == OFF and not self.maxTempOff):
+            if (not self.maxTempOff):
                 self.on(False)
-            else:
-                if (self.status == ON and not self.minTempOn):
-                    self.off(False)
+        else:
+            if (not self.minTempOn):
+                self.off(False)
 
 dewHeater = DewHeaterClass()
 
@@ -186,7 +196,7 @@ def dispalySatus():
     print(" Min Temp On = %s, Max Temp Off = %s" % (dewHeater.minTempOn, dewHeater.maxTempOff))
     print("minTempOn = %3.1fC, maxTempOff = %3.1fC" % (
         config.dewHeaterMinTemp, config.dewHeaterMaxTemp))
-    print("Dew point met = %s, fakeDewPoint = %s" % (conditions.dewPointMet, config.fakeDewPoint))
+    print("Dew point met = %s, fakeDewPoint = %s, fakeDewPointCounter = %i " % (conditions.dewPointMet, config.fakeDewPoint, conditions.fakeDewPointCounter))
     print("====================================================")
 
 
