@@ -9,5 +9,6 @@
   "dewHeaterOnOffDelay": 5,
   "dewPtCheckDelay": 5,
   "fakeDewPoint": true,
-  "fakeDewPointSamples": 20
+  "fakeDewPointSamples": 20,
+  "invertOnOff": false
 }

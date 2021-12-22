@@ -44,6 +44,8 @@ Configuration file options:
                                          the dew point minus 2C.
 
   "fakeDewPointSamples": 20            # number of samples for which dew point will be faked, after that samples are normal.
+
+  "invertOnOff": false                 # invert hi/low relay control signals for relay on/off to support relays wired to close on low signal and open on high
   
   
 DHT Sensor Placement. The current code assumes that the DHT sensor is under the acrylic dome. This allows for monitoring of
