@@ -55,6 +55,12 @@ class ConfigClass:
                 self.fakeDewPoint = self.configFile['fakeDewPoint']
                 self.fakeDewPointSamples = self.configFile['fakeDewPointSamples']
                 self.invertOnOff = self.configFile['invertOnOff']
+                if (self.invertOnOff):
+                    self.relayOn = GPIO.LOW
+                    self.relayOff = GPIO.HIGH
+                else:
+                    self.relayOn = GPIO.HIGH
+                    self.relayOff = GPIO.LOW
 
         except:
             sys.stderr.flush()
@@ -120,10 +126,7 @@ class DewHeaterClass:
     def on(self, forced=False):
 
         if (forced):
-            if (config.invertOnOff):
-                GPIO.output(config.dewHeaterPin, GPIO.LOW)
-            else:
-                GPIO.output(config.dewHeaterPin, GPIO.HIGH)
+            GPIO.output(config.dewHeaterPin, config.relayOn)
             self.status = ON
             return
 
@@ -131,19 +134,13 @@ class DewHeaterClass:
             print("Max temp reached, 'on' command ignored")
             return
 
-        if (config.invertOnOff):
-            GPIO.output(config.dewHeaterPin, GPIO.LOW)
-        else:
-            GPIO.output(config.dewHeaterPin, GPIO.HIGH)
-            self.status = ON
+        GPIO.output(config.dewHeaterPin, config.relayOn)
+        self.status = ON
 
 
     def off(self, forced=False):
         if (forced):
-            if (config.invertOnOff):
-                GPIO.output(config.dewHeaterPin, GPIO.HIGH)
-            else:
-                GPIO.output(config.dewHeaterPin, GPIO.LOW)
+            GPIO.output(config.dewHeaterPin, config.relayOff)
             self.status = OFF
             return
 
@@ -151,22 +148,20 @@ class DewHeaterClass:
             print("Min temp on, 'off' command ignored")
             return
 
-        if (config.invertOnOff):
-            GPIO.output(config.dewHeaterPin, GPIO.HIGH)
-        else:
-            GPIO.output(config.dewHeaterPin, GPIO.LOW)
+
+        GPIO.output(config.dewHeaterPin, config.relayOff)
         self.status = OFF
 
 
     def cycleRelay(self):
         self.status = OFF
-        GPIO.output(config.dewHeaterPin, GPIO.HIGH)
+        GPIO.output(config.dewHeaterPin, config.relayOn)
         time.sleep(1)
-        GPIO.output(config.dewHeaterPin, GPIO.LOW)
+        GPIO.output(config.dewHeaterPin, config.relayOff)
         time.sleep(1)
-        GPIO.output(config.dewHeaterPin, GPIO.HIGH)
+        GPIO.output(config.dewHeaterPin, config.relayOn)
         time.sleep(1)
-        GPIO.output(config.dewHeaterPin, GPIO.LOW)
+        GPIO.output(config.dewHeaterPin, config.relayOff)
 
 
     def checkTemps(self):
@@ -208,14 +203,13 @@ def dispalySatus():
         conditions.temperature, conditions.temp_actual, conditions.humidity, conditions.dewPoint.c))
     print("Dew heater state =", end=" ")
     if (dewHeater.status == ON):
-        print("ON", end=" ,")
+        print("ON", end=", ")
     else:
-        print("OFF", end=" ,")
-    print(" Min Temp On = %s, Max Temp Off = %s" % (dewHeater.minTempOn, dewHeater.maxTempOff))
-    print("minTempOn = %3.1fC, maxTempOff = %3.1fC" % (
-        config.dewHeaterMinTemp, config.dewHeaterMaxTemp))
-    print("Dew point met = %s, fakeDewPoint = %s, fakeDewPointCounter = %i " % (
-        conditions.dewPointMet, config.fakeDewPoint, conditions.fakeDewPointCounter))
+        print("OFF", end=", ")
+    print("invertOnOff = %s" % (config.invertOnOff))
+    print("MinTempOn set point = %3.1fC, MinTempOn = %s" % (config.dewHeaterMinTemp, dewHeater.minTempOn))
+    print("MaxTempOff set point = %3.1fC, MaxTempOff = %s" % (config.dewHeaterMaxTemp, dewHeater.maxTempOff))
+    print("Dew point met = %s, fakeDewPoint = %s, fakeDewPointCounter = %i " % (conditions.dewPointMet, config.fakeDewPoint, conditions.fakeDewPointCounter))
     print("====================================================")
 
 

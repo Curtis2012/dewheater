@@ -4,11 +4,11 @@
   "dewHeaterPin": 23,
   "dewHeaterCutinOffset": 1.0,
   "dewHeaterCutoutOffset": 1.0,
-  "dewHeaterMaxTemp": 25.0,
+  "dewHeaterMaxTemp": 30.0,
   "dewHeaterMinTemp": 1.0,
   "dewHeaterOnOffDelay": 5,
   "dewPtCheckDelay": 5,
-  "fakeDewPoint": true,
+  "fakeDewPoint": false,
   "fakeDewPointSamples": 20,
   "invertOnOff": false
 }
