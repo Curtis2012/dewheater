@@ -182,7 +182,7 @@ class DewHeaterClass:
             return ()
         else:
             if (self.minTempOn):
-                self.minTemp = False
+                self.minTempOn = False
                 self.off(False)
                 return
 
