@@ -75,17 +75,24 @@ class ConfigClass:
         GPIO.setup(self.dewHeaterPin, GPIO.OUT)
         GPIO.setup(self.dhtPin, GPIO.IN)
 
-
 config = ConfigClass()
-
 
 class conditionsClass:
 
     def __init__(self):
         self.fakeDewPointCounter = 0
         
-    def log(self):
-      
+    def logFileInit(self):  #open or create log file
+        try:
+          self.logFileHandle = open(config.logFile, 'w')
+        except:
+            sys.stderr.flush()
+            sys.exit("\nError opening log file, exiting")
+
+        return (True)
+
+     def logConditions(self)
+         self.logFileHandle.write()
 
     def update(self):
         self.humidity, self.temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
