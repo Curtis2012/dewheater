@@ -61,6 +61,8 @@ class ConfigClass:
                 else:
                     self.relayOn = GPIO.HIGH
                     self.relayOff = GPIO.LOW
+                self.logFile = self.configFile['logFileName']
+                self.loggingEnabled = self.configFile['loggingEnabled']
 
         except:
             sys.stderr.flush()
@@ -81,6 +83,9 @@ class conditionsClass:
 
     def __init__(self):
         self.fakeDewPointCounter = 0
+        
+    def log(self):
+      
 
     def update(self):
         self.humidity, self.temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
