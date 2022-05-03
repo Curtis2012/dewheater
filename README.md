@@ -3,7 +3,7 @@
 Dew heater controller for allksycam.
 
 
-This code controls a hacked USB powered dew heater. The dew heater hack consists of nothing more than removing the switch from the dew heater and directly connecting the power leads to the NO side of a relay. This code should work with other dew heater circuit designs also, such as resistor based,  I have not personally tested with other configurations, but other's are running different configurations successfully.
+This code controls a hacked USB powered dew heater. The dew heater hack consists of nothing more than removing the switch/connector from the dew heater and directly connecting the power leads to the NO side of a relay. This code should work with other dew heater circuit designs, such as resistor based, but I have not personally tested with other configurations. However other users are running different configurations successfully.
 
 A DHT22 sensor is used to monitor temperature vs dew point. When dew point cut-in set point is reached then the dew heater relay is closed. When the cut-out set point is reached the dew heater relay is opened. Both the cut-in and cut-out set points are defined in the configuration file as an offset from degrees Celsius of the dew point. This offset allows for a rough degree of hysterisis control. This method of temperature control is primitive, but is sufficient for this purpose.
 
