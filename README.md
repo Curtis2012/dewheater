@@ -64,6 +64,49 @@ the acrylic dome. I plan to add a second DHT sensor to sense outside ambient con
 	dewheateroff.py    Opens dew heater relay unconditionally (no cut in/out points, no timer).
 	
 	
+Dew Heater Service Install
+
+The following instructions were created by installing the dewheater service on a fresh install of Raspian Buster.  This installation assumes you are using python3 and pip3
+
+ 1   Install source code
+ 1.1  Create dewheater directory: mkdir dewheater below $HOME 
+ 1.2  Copy the following files to dewheater directory
+        dewheaterconfig.json
+        dewheateron.py
+        dewheater.service
+        dewheateroff.py
+        dewheater.py
+        dewheatertest.py
+
+ 2  Install libraries
+ 2.1  sudo apt update
+ 2.2  sudo apt upgrade
+ 2.3  Adafruit_DHT
+
+ 2.3.1  Follow instructions at this link: https://learn.adafruit.com/adafruit-io-basics-temperature-and-humidity/python-setup
+
+ 2.4  Install meteocalc
+ 2.4.1  sudo pip3 install meteocalc
+ 2.5  Other libraries referenced (sys, json, GPIO, and time) should not require an explicit install
+ 3  Configure Service
+ 3.1  Copy dewheater.service from dewheater directory to /lib/systemd/system/
+ 3.2  sudo cp /home/pi/dewheater/dewheater.service /lib/systemd/system/
+ 3.3  Start dewheater service
+ 3.4  sudo systemctl start dewheater
+ 3.5  Enable dewheater service to start at boot
+ 3.6  sudo systemctl enable dewheater
+ 3.7  Check status of dewheater service
+ 3.8  sudo systemctl status dewheater
+
+Example output:
+
+● dewheater.service - dewheater
+Loaded: loaded (/lib/systemd/system/dewheater.service; disabled; vendor preset: enabled)
+Active: active (running) since Fri 2022-01-21 17:44:20 PST; 6s ago
+Main PID: 30059 (python3)
+Tasks: 1 (limit: 2062)
+CGroup: /system.slice/dewheater.service
+└─30059 /usr/bin/python3 /home/pi/dewheater/dewheater.py
 
 
 
