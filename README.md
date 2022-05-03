@@ -1,4 +1,3 @@
-# dewheater
 
 Dew heater controller for allksycam.
 
@@ -60,8 +59,11 @@ Dew Heater Service Install
 The following instructions were created by installing the dewheater service on a fresh install of Raspian Buster.  This installation assumes you are using python3 and pip3
 
  1   Install source code
+ 
  1.1  Create dewheater directory: mkdir dewheater below $HOME 
+ 
  1.2  Copy the following files to dewheater directory
+ 
         dewheaterconfig.json
         dewheateron.py
         dewheater.service
@@ -70,26 +72,43 @@ The following instructions were created by installing the dewheater service on a
         dewheatertest.py
 
  2  Install libraries
+ 
  2.1  sudo apt update
+ 
  2.2  sudo apt upgrade
+ 
  2.3  Install Adafruit_DHT library
+ 
 
  2.3.1  Follow instructions at this link: https://learn.adafruit.com/adafruit-io-basics-temperature-and-humidity/python-setup
+ 
 
  2.4  Install meteocalc library
+ 
  2.4.1  sudo pip3 install meteocalc
+ 
  
  2.5  Other libraries referenced (sys, json, GPIO, and time) should not require an explicit install, but may on some configurations.
  
+ 
  3  Configure Service
+ 
  3.1  Copy dewheater.service from dewheater directory to /lib/systemd/system/
+ 
  3.1.1  sudo cp /home/pi/dewheater/dewheater.service /lib/systemd/system/
+ 
  3.3  Start dewheater service
+ 
  3.3.1  sudo systemctl start dewheater
+ 
  3.5  Enable dewheater service to start at boot
+ 
  3.5.1  sudo systemctl enable dewheater
+ 
  3.7  Check status of dewheater service
+ 
  3.7.1  sudo systemctl status dewheater
+ 
 
 Example output:
 
