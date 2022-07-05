@@ -1,7 +1,8 @@
-# dewheater
+## Dewheater
 
 Dew heater controller for allksycam.
 
+### Overview
 
 This code controls a hacked USB powered dew heater or resistor based design. The dew heater hack consists of nothing more than removing the switch from the dew heater 
 and directly connecting the power leads to the NO side of a relay. This code should work with other designs also, but this has not yet been tested.
@@ -14,10 +15,11 @@ Wiring and library installation instructions can be found:
 
   https://pypi.org/project/RPi.bme280/
 
-Libraries to be added to support BME280:
+### Libraries to be added to support BME280:
 
-  RPi.bme280
-  smbus2
+  a. RPi.bme280
+
+  b. smbus2
 
 The hacked dew heater is based upon a dew heater like the one at the link below:
 
