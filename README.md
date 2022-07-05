@@ -15,6 +15,7 @@ Wiring and library installation instructions can be found:
   https://pypi.org/project/RPi.bme280/
 
 Libraries to be added to support BME280:
+
   RPi.bme280
   smbus2
 
