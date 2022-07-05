@@ -1,6 +1,5 @@
 {
   "debug": true,
-  "dhtPin": 4,
   "dewHeaterPin": 23,
   "dewHeaterCutinOffset": 1.0,
   "dewHeaterCutoutOffset": 1.0,

@@ -22,10 +22,21 @@ import sys
 import RPi.GPIO as GPIO
 import time
 import json
-import Adafruit_DHT
+#import Adafruit_DHT
 from meteocalc import dew_point
+# Added for BME
+import smbus2
+import bme280
 
-DHT_SENSOR = Adafruit_DHT.DHT22
+# Commented out, left for ref.
+#DHT_SENSOR = Adafruit_DHT.DHT22
+
+# Initialize BME
+port = 1
+address = 0x76
+bus = smbus2.SMBus(port)
+calibration_params = bme280.load_calibration_params(bus, address)
+
 ON = 1
 OFF = 0
 
@@ -45,7 +56,8 @@ class ConfigClass:
                 self.configFile = json.load(f)
                 print(json.dumps(self.configFile, indent=4, sort_keys=True))
                 self.debug = self.configFile['debug']
-                self.dhtPin = self.configFile['dhtPin']
+                # no longer required for BME support
+                #self.dhtPin = self.configFile['dhtPin']
                 self.dewHeaterPin = self.configFile['dewHeaterPin']
                 self.dewHeaterCutinOffset = self.configFile['dewHeaterCutinOffset']
                 self.dewHeaterCutoutOffset = self.configFile['dewHeaterCutoutOffset']
@@ -83,7 +95,10 @@ class conditionsClass:
         self.fakeDewPointCounter = 0
 
     def update(self):
-        self.humidity, self.temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
+        # grab BME280 readings
+        data = bme280.sample(bus, address, calibration_params)
+        self.humidity = data.humidity
+        self.temperature = data.temerature
 
         if self.humidity is not None and self.temperature is not None:
             if ((self.temperature >= -40) and (self.temperature <= 80)) and (
@@ -201,11 +216,13 @@ def dispalySatus():
     print("====================================================")
     print("Temp = %3.1fC, temp_actual = %3.1fC, Humidity %3.1f%% Dew Point = %3.1fC" % (
         conditions.temperature, conditions.temp_actual, conditions.humidity, conditions.dewPoint.c))
-    print("Dew heater state =", end=" ")
+    # Commented out for python2 compatibility
+    #print("Dew heater state =", end=" ")
+    print("Dew heater state = ")
     if (dewHeater.status == ON):
-        print("ON", end=", ")
+        print("ON")
     else:
-        print("OFF", end=", ")
+        print("OFF")
     print("invertOnOff = %s" % (config.invertOnOff))
     print("MinTempOn set point = %3.1fC, MinTempOn = %s" % (config.dewHeaterMinTemp, dewHeater.minTempOn))
     print("MaxTempOff set point = %3.1fC, MaxTempOff = %s" % (config.dewHeaterMaxTemp, dewHeater.maxTempOff))

@@ -9,9 +9,21 @@ import sys
 import RPi.GPIO as GPIO
 import time
 import json
-import Adafruit_DHT
+#import Adafruit_DHT
+from meteocalc import dew_point
+# Added for BME
+import smbus2
+import bme280
 
-DHT_SENSOR = Adafruit_DHT.DHT22
+# Commented out, left for ref.
+#DHT_SENSOR = Adafruit_DHT.DHT22
+
+# Initialize BME
+port = 1
+address = 0x76
+bus = smbus2.SMBus(port)
+calibration_params = bme280.load_calibration_params(bus, address)
+
 ON = 1
 OFF = 0
 
@@ -24,7 +36,7 @@ class ConfigClass:
                 print(json.dumps(self.configFile, indent=4, sort_keys=True))
                 self.dewHeaterPin = self.configFile['dewHeaterPin']
                 self.dewHeaterOnOffDelay = self.configFile['dewHeaterOnOffDelay']
-                self.dhtPin = self.configFile['dhtPin']
+                #self.dhtPin = self.configFile['dhtPin']
         except:
             sys.stderr.flush()
             sys.exit("\nError opening or parsing config file, exiting")
@@ -61,7 +73,10 @@ class DewHeaterClass:
                 print("Dew heater off")
 
     def checkTemp(self):
-        humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
+       # grab BME280 readings
+        data = bme280.sample(bus, address, calibration_params)
+        self.humidity = data.humidity
+        self.temperature = data.temerature
         print("Temp = %3.1fC Humidity %3.1f%%" % (temperature, humidity))
 
 dewHeater = DewHeaterClass()
