@@ -2,6 +2,7 @@
   "debug": true,
   "sensorType": "BME280",
   "dhtPin": 1,
+  "bmePort": 1,
   "bmeAddress": 0x76,  ! modify to use correct JSON syntax...
   "dewHeaterPin": 23,
   "dewHeaterCutinOffset": 1.0,
