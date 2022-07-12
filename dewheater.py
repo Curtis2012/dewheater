@@ -22,23 +22,19 @@ import sys
 import RPi.GPIO as GPIO
 import time
 import json
-#import Adafruit_DHT
+import Adafruit_DHT
 from meteocalc import dew_point
 # Added for BME
 import smbus2
 import bme280
 
-# Commented out, left for ref.
-#DHT_SENSOR = Adafruit_DHT.DHT22
-
-# Initialize BME
-port = 1
-address = 0x76
-bus = smbus2.SMBus(port)
-calibration_params = bme280.load_calibration_params(bus, address)
-
+DHT_SENSOR = Adafruit_DHT.DHT22
 ON = 1
 OFF = 0
+
+# Initialize BME
+#port = 1
+#address = 0x76
 
 
 class ConfigClass:
@@ -46,6 +42,7 @@ class ConfigClass:
     def __init__(self):
         self.loadConfig()
         self.setup()
+
 
     # def checkConfig(self):
     # future edits...
@@ -56,8 +53,8 @@ class ConfigClass:
                 self.configFile = json.load(f)
                 print(json.dumps(self.configFile, indent=4, sort_keys=True))
                 self.debug = self.configFile['debug']
-                # no longer required for BME support
-                #self.dhtPin = self.configFile['dhtPin']
+                self.dhtPin = self.configFile['dhtPin']
+                self.sensorType = self.configFile['sensorType']
                 self.dewHeaterPin = self.configFile['dewHeaterPin']
                 self.dewHeaterCutinOffset = self.configFile['dewHeaterCutinOffset']
                 self.dewHeaterCutoutOffset = self.configFile['dewHeaterCutoutOffset']
@@ -84,6 +81,8 @@ class ConfigClass:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.dewHeaterPin, GPIO.OUT)
         GPIO.setup(self.dhtPin, GPIO.IN)
+        config.bmeBus = smbus2.SMBus(config.bmePort)
+        config.bme_calibration_params = bme280.load_calibration_params(config.bmeBus, config.bmeAddress)
 
 
 config = ConfigClass()
@@ -94,11 +93,23 @@ class conditionsClass:
     def __init__(self):
         self.fakeDewPointCounter = 0
 
-    def update(self):
-        # grab BME280 readings
-        data = bme280.sample(bus, address, calibration_params)
+    def getBME280Data(self):
+        data = bme280.sample(config.bmeBus, config.bmeAddress, config.bme_calibration_params)
         self.humidity = data.humidity
-        self.temperature = data.temerature
+        self.temperature = data.temperature
+
+    def getDHTData(self):
+        self.humidity, self.temperature = Adafruit_DHT.read_retry(DHT_SENSOR, config.dhtPin)
+
+    def update(self):
+        if (config.sensorType == "BME280"):
+            self.getBME280Data()
+        else:
+            if (config.sensorType == "DHT22"):
+                self.getDHT22Data()
+            else:
+                sys.stderr.write("\nInvalid temperature sensor type: %s" %config.sensorType)
+                return
 
         if self.humidity is not None and self.temperature is not None:
             if ((self.temperature >= -40) and (self.temperature <= 80)) and (
@@ -235,7 +246,6 @@ def main():
         dewHeater.checkTemps()
         dispalySatus()
         time.sleep(config.dewPtCheckDelay)
-
 
 if __name__ == "__main__":
     main()
